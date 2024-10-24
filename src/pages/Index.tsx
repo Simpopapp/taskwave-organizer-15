@@ -13,6 +13,8 @@ const Index = () => {
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const { toast } = useToast();
   const [currentWeek, setCurrentWeek] = useState(1);
+  const [userLevel, setUserLevel] = useState(1);
+  const [userXp, setUserXp] = useState(0);
 
   const parseTasksFromContent = (content: string): TaskType[] => {
     const lines = content.split('\n').filter(line => line.trim().length > 0);
@@ -54,9 +56,34 @@ const Index = () => {
   };
 
   const handleTaskComplete = (taskId: string) => {
-    setTasks(prev => prev.map(task => 
-      task.id === taskId ? { ...task, completed: !task.completed } : task
-    ));
+    setTasks(prev => prev.map(task => {
+      if (task.id === taskId) {
+        const completed = !task.completed;
+        if (completed) {
+          addExperiencePoints(25, "Tarefa concluída");
+        }
+        return { ...task, completed };
+      }
+      return task;
+    }));
+  };
+
+  const addExperiencePoints = (points: number, action: string) => {
+    setUserXp(prev => {
+      const newXp = prev + points;
+      const newLevel = Math.floor(newXp / 1000) + 1;
+      
+      if (newLevel > userLevel) {
+        toast({
+          title: "Nível Aumentado! 🎉",
+          description: `Você alcançou o nível ${newLevel}!`,
+          duration: 5000,
+        });
+        setUserLevel(newLevel);
+      }
+      
+      return newXp;
+    });
   };
 
   const handleWeekChange = (week: number) => {
