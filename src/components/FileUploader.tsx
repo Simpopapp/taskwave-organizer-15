@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Crown, Upload, Lock } from "lucide-react";
 import { useState, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { VoiceInput } from "./VoiceInput";
 
 interface FileUploaderProps {
   onFileUpload: (content: string) => void;
@@ -32,6 +33,11 @@ export const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
     if (file) {
       readFile(file);
     }
+  };
+
+  const handleVoiceTranscription = (transcribedText: string) => {
+    onFileUpload(transcribedText);
+    addExperiencePoints(100, "Texto transcrito por voz");
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,6 +112,8 @@ export const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
           </div>
         </div>
       </div>
+
+      <VoiceInput onTranscriptionComplete={handleVoiceTranscription} />
 
       <div className="flex flex-col items-center space-y-4 p-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg">
         <div className="flex items-center gap-2">
