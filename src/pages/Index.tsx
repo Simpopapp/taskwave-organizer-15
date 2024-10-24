@@ -13,18 +13,39 @@ const Index = () => {
   const { toast } = useToast();
   const [currentWeek, setCurrentWeek] = useState(1);
 
+  const parseTasksFromContent = (content: string): TaskType[] => {
+    const lines = content.split('\n').filter(line => line.trim().length > 0);
+    const parsedTasks: TaskType[] = [];
+    let currentWeek = 1;
+
+    lines.forEach(line => {
+      // Check if line starts with "Semana" or "Week"
+      if (line.toLowerCase().match(/^(semana|week)\s*\d+/i)) {
+        currentWeek = parseInt(line.match(/\d+/)?.[0] || "1");
+        return;
+      }
+
+      // Check if line is a task (starts with "-", "*", or contains ":")
+      if (line.trim().match(/^[-*]|:/)) {
+        const taskTitle = line.replace(/^[-*]\s*/, '').trim();
+        if (taskTitle) {
+          parsedTasks.push({
+            id: Math.random().toString(36).substr(2, 9),
+            title: taskTitle,
+            completed: false,
+            week: currentWeek
+          });
+        }
+      }
+    });
+
+    return parsedTasks;
+  };
+
   const handleFileUpload = (content: string) => {
-    // Simple parser for demonstration
-    const parsedTasks = content.split('\n')
-      .filter(line => line.trim().length > 0)
-      .map((line, index) => ({
-        id: index.toString(),
-        title: line,
-        completed: false,
-        week: Math.floor(index / 3) + 1
-      }));
-    
+    const parsedTasks = parseTasksFromContent(content);
     setTasks(parsedTasks);
+    
     toast({
       title: "Tasks Loaded",
       description: `Successfully loaded ${parsedTasks.length} tasks from file.`
@@ -37,6 +58,14 @@ const Index = () => {
     ));
   };
 
+  const handleWeekChange = (week: number) => {
+    setCurrentWeek(week);
+  };
+
+  const availableWeeks = Array.from(
+    new Set(tasks.map(task => task.week))
+  ).sort((a, b) => a - b);
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto space-y-8">
@@ -47,6 +76,20 @@ const Index = () => {
           </p>
           <FileUploader onFileUpload={handleFileUpload} />
         </Card>
+
+        {availableWeeks.length > 0 && (
+          <div className="flex gap-2 mb-4">
+            {availableWeeks.map(week => (
+              <Button
+                key={week}
+                variant={currentWeek === week ? "default" : "outline"}
+                onClick={() => handleWeekChange(week)}
+              >
+                Week {week}
+              </Button>
+            ))}
+          </div>
+        )}
 
         <div className="grid md:grid-cols-2 gap-8">
           <Card className="p-6">
