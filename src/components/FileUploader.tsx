@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Crown, Upload, Lock, Mic, Star } from "lucide-react";
-import { useState, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { VoiceInput } from "./VoiceInput";
+import { ContentOrganizer } from "./ContentOrganizer";
 import { cn } from "@/lib/utils";
+import { AnalyzedContent } from '@/services/nlpService';
 
 interface FileUploaderProps {
   onFileUpload: (content: string) => void;
@@ -19,6 +20,7 @@ export const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
   const [userLevel, setUserLevel] = useState(1);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const contentOrganizerRef = useRef<any>(null);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -37,6 +39,13 @@ export const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
     if (file) {
       readFile(file);
     }
+  };
+
+  const handleContentAnalyzed = (analyzedContent: AnalyzedContent) => {
+    if (contentOrganizerRef.current) {
+      contentOrganizerRef.current.addContent(analyzedContent);
+    }
+    trackInteraction("Conteúdo processado");
   };
 
   const handleVoiceTranscription = (transcribedText: string) => {
@@ -113,6 +122,7 @@ export const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
+        {/* File Upload Section */}
         <div
           className={cn(
             "border-2 border-dashed rounded-lg p-8 text-center transition-all",
@@ -146,6 +156,7 @@ export const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
           </div>
         </div>
 
+        {/* Voice Input Section */}
         <div className={cn(
           "border-2 rounded-lg p-8 transition-all relative",
           !isPremium && "opacity-75 hover:opacity-100"
@@ -155,9 +166,15 @@ export const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
               <Lock className="w-8 h-8 text-gray-500 animate-pulse" />
             </div>
           )}
-          <VoiceInput onTranscriptionComplete={handleVoiceTranscription} />
+          <VoiceInput 
+            onTranscriptionComplete={onFileUpload}
+            onContentAnalyzed={handleContentAnalyzed}
+          />
         </div>
       </div>
+
+      {/* Content Organizer */}
+      <ContentOrganizer ref={contentOrganizerRef} />
 
       <div className="flex flex-col items-center space-y-4 p-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg">
         <div className="flex items-center gap-2">
