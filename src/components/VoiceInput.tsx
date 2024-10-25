@@ -73,7 +73,7 @@ export const VoiceInput = ({ onTranscriptionComplete }: VoiceInputProps) => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 p-4 border rounded-lg bg-white/50 backdrop-blur-sm">
+    <div className="flex flex-col items-center gap-4">
       <h3 className="text-lg font-semibold">Entrada por Voz</h3>
       <Button
         onClick={isRecording ? stopRecording : startRecording}
