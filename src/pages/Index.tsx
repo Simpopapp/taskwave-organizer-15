@@ -8,6 +8,7 @@ import { WeeklyProgress } from "@/components/WeeklyProgress";
 import { FileUploader } from "@/components/FileUploader";
 import { DailyView } from "@/components/DailyView";
 import { TaskType } from "@/types/task";
+import { MainNavigation } from "@/components/navigation/MainNavigation";
 
 const Index = () => {
   const [tasks, setTasks] = useState<TaskType[]>([]);
@@ -99,6 +100,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/50 to-purple-50/50 p-8">
       <div className="max-w-5xl mx-auto space-y-8">
+        <MainNavigation />
+        
         <Card className="p-6 border-blue-100 bg-white/80 backdrop-blur">
           <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
             Assistente de Automação de Tarefas
