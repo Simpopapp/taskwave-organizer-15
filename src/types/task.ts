@@ -3,4 +3,8 @@ export interface TaskType {
   title: string;
   completed: boolean;
   week: number;
+  xpReward?: number;
+  priority?: number;
+  dueDate?: Date;
+  type?: 'daily' | 'weekly' | 'monthly';
 }
