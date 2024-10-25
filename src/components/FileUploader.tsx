@@ -3,11 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Upload, Lock, Mic } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { VoiceInput } from "./VoiceInput";
-import ContentOrganizer, { ContentOrganizerRef } from "./ContentOrganizer";
+import { ContentOrganizerRef } from "./ContentOrganizer";
 import { cn } from "@/lib/utils";
 import { AnalyzedContent, analyzeContent } from '@/services/nlpService';
-import { PremiumFeatures } from './PremiumFeatures';
 import { TaskType } from "@/types/task";
+import { useContentManager } from '@/hooks/useContentManager';
 
 interface FileUploaderProps {
   onFileUpload: (content: string) => void;
@@ -16,96 +16,10 @@ interface FileUploaderProps {
 export const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
-  const [interactionCount, setInteractionCount] = useState(0);
-  const [userXp, setUserXp] = useState(0);
-  const [userLevel, setUserLevel] = useState(1);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const contentOrganizerRef = useRef<ContentOrganizerRef>(null);
-
-  const getCurrentWeek = (): number => {
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 1);
-    const diff = now.getTime() - start.getTime();
-    return Math.ceil(diff / (1000 * 60 * 60 * 24 * 7));
-  };
-
-  const addExperiencePoints = (points: number, action: string) => {
-    setUserXp(prev => {
-      const newXp = prev + points;
-      const newLevel = Math.floor(newXp / 1000) + 1;
-      
-      if (newLevel > userLevel) {
-        toast({
-          title: "Nível Aumentado! 🎉",
-          description: `Você alcançou o nível ${newLevel}!`,
-          duration: 5000,
-        });
-        setUserLevel(newLevel);
-      }
-      return newXp;
-    });
-  };
-
-  const upgradeToPremium = () => {
-    setIsPremium(true);
-    toast({
-      title: "Bem-vindo ao AKALIBRE Premium! 👑",
-      description: "Você desbloqueou recursos exclusivos!",
-      duration: 5000,
-    });
-    addExperiencePoints(500, "Upgrade para Premium");
-  };
-
-  const addNewTask = (task: TaskType) => {
-    if (contentOrganizerRef.current) {
-      contentOrganizerRef.current.addContent({
-        category: 'task',
-        content: task.title,
-        metadata: {
-          priority: task.priority,
-          type: task.type,
-          xpReward: task.xpReward
-        }
-      });
-    }
-  };
-
-  const addNewAppointment = (appointment: { 
-    title: string; 
-    date: Date; 
-    type: string;
-    participants: string[];
-  }) => {
-    if (contentOrganizerRef.current) {
-      contentOrganizerRef.current.addContent({
-        category: 'appointment',
-        content: appointment.title,
-        metadata: {
-          date: appointment.date,
-          location: appointment.type,
-          participants: appointment.participants
-        }
-      });
-    }
-  };
-
-  const addNewTeamPost = (post: {
-    id: string;
-    content: string;
-    author: { name: string; avatar: string };
-    timestamp: Date;
-  }) => {
-    if (contentOrganizerRef.current) {
-      contentOrganizerRef.current.addContent({
-        category: 'mindset',
-        content: post.content,
-        metadata: {
-          date: post.timestamp
-        }
-      });
-    }
-  };
+  const { addContent } = useContentManager();
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -124,49 +38,6 @@ export const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
     if (file) {
       readFile(file);
     }
-  };
-
-  const processContent = async (content: string) => {
-    const analyzedContent = await analyzeContent(content);
-    
-    switch (analyzedContent.category) {
-      case 'task':
-        const newTask: TaskType = {
-          id: Date.now().toString(),
-          title: analyzedContent.content,
-          completed: false,
-          week: getCurrentWeek(),
-          xpReward: analyzedContent.metadata?.xpReward || 50,
-          priority: analyzedContent.metadata?.priority || 1
-        };
-        addNewTask(newTask);
-        break;
-      
-      case 'appointment':
-        const newAppointment = {
-          title: analyzedContent.content,
-          date: analyzedContent.metadata?.date || new Date(),
-          type: analyzedContent.metadata?.location || 'não especificado',
-          participants: analyzedContent.metadata?.participants || []
-        };
-        addNewAppointment(newAppointment);
-        break;
-      
-      case 'mindset':
-        const newPost = {
-          id: Date.now().toString(),
-          content: analyzedContent.content,
-          author: { name: 'Sistema', avatar: '' },
-          timestamp: new Date()
-        };
-        addNewTeamPost(newPost);
-        break;
-    }
-
-    toast({
-      title: "Conteúdo Processado",
-      description: `Novo ${analyzedContent.category} adicionado com sucesso!`
-    });
   };
 
   const handleVoiceTranscription = async (transcribedText: string) => {
@@ -194,6 +65,16 @@ export const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
       }
     };
     reader.readAsText(file);
+  };
+
+  const processContent = async (content: string) => {
+    const analyzedContent = await analyzeContent(content);
+    addContent(analyzedContent);
+    
+    toast({
+      title: "Conteúdo Processado",
+      description: `Novo ${analyzedContent.category} adicionado com sucesso!`
+    });
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -258,15 +139,6 @@ export const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
           />
         </div>
       </div>
-
-      <ContentOrganizer ref={contentOrganizerRef} />
-
-      <PremiumFeatures
-        isPremium={isPremium}
-        userLevel={userLevel}
-        userXp={userXp}
-        onUpgradeToPremium={upgradeToPremium}
-      />
     </div>
   );
 };
