@@ -23,6 +23,90 @@ export const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const contentOrganizerRef = useRef<ContentOrganizerRef>(null);
 
+  const getCurrentWeek = (): number => {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 1);
+    const diff = now.getTime() - start.getTime();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24 * 7));
+  };
+
+  const addExperiencePoints = (points: number, action: string) => {
+    setUserXp(prev => {
+      const newXp = prev + points;
+      const newLevel = Math.floor(newXp / 1000) + 1;
+      
+      if (newLevel > userLevel) {
+        toast({
+          title: "Nível Aumentado! 🎉",
+          description: `Você alcançou o nível ${newLevel}!`,
+          duration: 5000,
+        });
+        setUserLevel(newLevel);
+      }
+      return newXp;
+    });
+  };
+
+  const upgradeToPremium = () => {
+    setIsPremium(true);
+    toast({
+      title: "Bem-vindo ao AKALIBRE Premium! 👑",
+      description: "Você desbloqueou recursos exclusivos!",
+      duration: 5000,
+    });
+    addExperiencePoints(500, "Upgrade para Premium");
+  };
+
+  const addNewTask = (task: TaskType) => {
+    if (contentOrganizerRef.current) {
+      contentOrganizerRef.current.addContent({
+        category: 'task',
+        content: task.title,
+        metadata: {
+          priority: task.priority,
+          type: task.type,
+          xpReward: task.xpReward
+        }
+      });
+    }
+  };
+
+  const addNewAppointment = (appointment: { 
+    title: string; 
+    date: Date; 
+    type: string;
+    participants: string[];
+  }) => {
+    if (contentOrganizerRef.current) {
+      contentOrganizerRef.current.addContent({
+        category: 'appointment',
+        content: appointment.title,
+        metadata: {
+          date: appointment.date,
+          location: appointment.type,
+          participants: appointment.participants
+        }
+      });
+    }
+  };
+
+  const addNewTeamPost = (post: {
+    id: string;
+    content: string;
+    author: { name: string; avatar: string };
+    timestamp: Date;
+  }) => {
+    if (contentOrganizerRef.current) {
+      contentOrganizerRef.current.addContent({
+        category: 'mindset',
+        content: post.content,
+        metadata: {
+          date: post.timestamp
+        }
+      });
+    }
+  };
+
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -45,7 +129,6 @@ export const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
   const processContent = async (content: string) => {
     const analyzedContent = await analyzeContent(content);
     
-    // Update appropriate section based on content type
     switch (analyzedContent.category) {
       case 'task':
         const newTask: TaskType = {
@@ -70,11 +153,10 @@ export const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
         break;
       
       case 'mindset':
-        // Add to team feed
         const newPost = {
           id: Date.now().toString(),
           content: analyzedContent.content,
-          author: currentUser || { name: 'Sistema', avatar: '' },
+          author: { name: 'Sistema', avatar: '' },
           timestamp: new Date()
         };
         addNewTeamPost(newPost);

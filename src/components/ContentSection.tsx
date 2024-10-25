@@ -40,8 +40,12 @@ export const ContentSection = ({ title, type, items }: ContentSectionProps) => {
                   {item.metadata.date && (
                     <p>Data: {item.metadata.date.toLocaleDateString()}</p>
                   )}
-                  {item.metadata.client && <p>Cliente: {item.metadata.client}</p>}
-                  {item.metadata.topic && <p>Tema: {item.metadata.topic}</p>}
+                  {item.metadata.location && (
+                    <p>Local: {item.metadata.location}</p>
+                  )}
+                  {item.metadata.participants && (
+                    <p>Participantes: {item.metadata.participants.join(', ')}</p>
+                  )}
                 </div>
               )}
             </div>
