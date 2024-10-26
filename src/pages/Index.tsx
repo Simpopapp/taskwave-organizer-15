@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { TaskList } from "@/components/TaskList";
@@ -9,6 +8,10 @@ import { FileUploader } from "@/components/FileUploader";
 import { DailyView } from "@/components/DailyView";
 import { TaskType } from "@/types/task";
 import { MainNavigation } from "@/components/navigation/MainNavigation";
+import { PremiumFeatures } from "@/components/PremiumFeatures";
+import { CrystallizeDialog } from "@/components/CrystallizeDialog";
+import { VoiceInput } from "@/components/VoiceInput";
+import { cn } from "@/lib/utils";
 
 const Index = () => {
   const [tasks, setTasks] = useState<TaskType[]>([]);
@@ -16,6 +19,30 @@ const Index = () => {
   const [currentWeek, setCurrentWeek] = useState(1);
   const [userLevel, setUserLevel] = useState(1);
   const [userXp, setUserXp] = useState(0);
+  const [isPremium, setIsPremium] = useState(false);
+  const [interactionCount, setInteractionCount] = useState(0);
+
+  const handleInteraction = () => {
+    setInteractionCount(prev => {
+      const newCount = prev + 1;
+      if (newCount % 3 === 0) {
+        // Add XP every 3 interactions
+        setUserXp(prevXp => {
+          const newXp = prevXp + 400;
+          const newLevel = Math.floor(newXp / 1000) + 1;
+          if (newLevel > userLevel) {
+            setUserLevel(newLevel);
+            toast({
+              title: "Nível Aumentado! 🎉",
+              description: `Você alcançou o nível ${newLevel}!`,
+            });
+          }
+          return newXp;
+        });
+      }
+      return newCount;
+    });
+  };
 
   const parseTasksFromContent = (content: string): TaskType[] => {
     const lines = content.split('\n').filter(line => line.trim().length > 0);
@@ -102,32 +129,42 @@ const Index = () => {
       <div className="max-w-5xl mx-auto space-y-8">
         <MainNavigation />
         
-        <Card className="p-6 border-blue-100 bg-white/80 backdrop-blur">
-          <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
-            Assistente de Automação de Tarefas
-          </h1>
-          <p className="text-gray-600 mb-6">
-            Faça upload do seu arquivo de planejamento para gerar e gerenciar tarefas semanais automaticamente.
-          </p>
-          <FileUploader onFileUpload={handleFileUpload} />
-        </Card>
+        <PremiumFeatures
+          isPremium={isPremium}
+          userLevel={userLevel}
+          userXp={userXp}
+          onUpgradeToPremium={() => setIsPremium(true)}
+        />
 
-        {availableWeeks.length > 0 && (
-          <div className="flex gap-2 mb-4 flex-wrap">
-            {availableWeeks.map(week => (
-              <Button
-                key={week}
-                variant={currentWeek === week ? "default" : "outline"}
-                onClick={() => handleWeekChange(week)}
-                className={currentWeek === week 
-                  ? "bg-blue-600 hover:bg-blue-700" 
-                  : "border-blue-200 text-blue-700 hover:bg-blue-50"}
-              >
-                Semana {week}
-              </Button>
-            ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="p-6 border-blue-100 bg-white/80 backdrop-blur">
+            <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
+              Assistente de Automação de Tarefas
+            </h1>
+            <p className="text-gray-600 mb-6">
+              Faça upload do seu arquivo de planejamento para gerar e gerenciar tarefas semanais automaticamente.
+            </p>
+            <FileUploader onFileUpload={handleFileUpload} />
+          </Card>
+
+          <div className={cn(
+            "p-6 rounded-lg transition-all duration-300 relative",
+            !isPremium && "opacity-75"
+          )}>
+            {!isPremium && (
+              <div className="absolute inset-0 bg-black/5 backdrop-blur-[1px] rounded-lg flex items-center justify-center">
+                <div className="text-center space-y-2">
+                  <Crown className="w-12 h-12 mx-auto text-yellow-500 animate-pulse" />
+                  <p className="text-sm font-medium">Recurso Premium</p>
+                </div>
+              </div>
+            )}
+            <VoiceInput 
+              onTranscriptionComplete={() => handleInteraction()}
+              onContentAnalyzed={() => handleInteraction()}
+            />
           </div>
-        )}
+        </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
