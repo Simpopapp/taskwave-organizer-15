@@ -3,6 +3,8 @@ import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { cn } from "@/lib/utils";
 
+const XP_FOR_LEVEL_UP = 1000;
+
 interface PremiumFeaturesProps {
   isPremium: boolean;
   userLevel: number;
