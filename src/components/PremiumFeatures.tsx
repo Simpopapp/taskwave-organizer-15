@@ -1,4 +1,4 @@
-import { Crown, Star } from "lucide-react";
+import { Crown, Star, Lock } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { cn } from "@/lib/utils";
