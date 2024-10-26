@@ -3,7 +3,6 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { TaskList } from "@/components/TaskList";
-import { WeeklyProgress } from "@/components/WeeklyProgress";
 import { FileUploader } from "@/components/FileUploader";
 import { DailyView } from "@/components/DailyView";
 import { TaskType } from "@/types/task";
@@ -12,6 +11,7 @@ import { PremiumFeatures } from "@/components/PremiumFeatures";
 import { CrystallizeDialog } from "@/components/CrystallizeDialog";
 import { VoiceInput } from "@/components/VoiceInput";
 import { cn } from "@/lib/utils";
+import { Crown } from "lucide-react";
 
 const Index = () => {
   const [tasks, setTasks] = useState<TaskType[]>([]);
