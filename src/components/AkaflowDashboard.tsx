@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Crown, Star, Calendar, Users, CheckSquare, Trophy, Sparkles } from "lucide-react";
+import { Crown, Star, Calendar, Users, CheckSquare, Trophy, Sparkles, Mic } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TaskList } from "./TaskList";
 import { WeeklyProgress } from "./WeeklyProgress";
@@ -12,7 +12,11 @@ import { TaskType } from "@/types/task";
 import { useTheme } from "next-themes";
 import { PremiumFeatures } from "./PremiumFeatures";
 import { CrystallizeDialog } from "./CrystallizeDialog";
+import { VoiceInput } from "./VoiceInput";
 import { useToast } from "@/hooks/use-toast";
+
+const XP_PER_INTERACTION = 400;
+const XP_FOR_LEVEL_UP = 1000;
 
 export const AkaflowDashboard = () => {
   const [activeTab, setActiveTab] = useState("tasks");
@@ -20,9 +24,40 @@ export const AkaflowDashboard = () => {
   const [isPremium, setIsPremium] = useState(false);
   const [userLevel, setUserLevel] = useState(1);
   const [userXp, setUserXp] = useState(0);
+  const [interactionCount, setInteractionCount] = useState(0);
   const { toast } = useToast();
 
   const isDark = theme === "dark";
+
+  useEffect(() => {
+    if (interactionCount > 0 && interactionCount % 3 === 0) {
+      const newXp = userXp + XP_PER_INTERACTION;
+      const newLevel = Math.floor(newXp / XP_FOR_LEVEL_UP) + 1;
+      
+      setUserXp(newXp);
+      
+      if (newLevel > userLevel) {
+        setUserLevel(newLevel);
+        toast({
+          title: "Nível Aumentado! 🎉",
+          description: `Você alcançou o nível ${newLevel}!`,
+          duration: 5000,
+        });
+      }
+    }
+  }, [interactionCount, userXp, userLevel]);
+
+  const handleInteraction = () => {
+    setInteractionCount(prev => prev + 1);
+  };
+
+  const handleIdeaCrystallized = (enhancedIdea: string) => {
+    handleInteraction();
+    toast({
+      title: "Nova Ideia Cristalizada",
+      description: "Sua ideia foi aprimorada e está pronta para implementação.",
+    });
+  };
 
   const glassStyle = cn(
     "backdrop-blur-md transition-all duration-300",
@@ -32,14 +67,6 @@ export const AkaflowDashboard = () => {
     "border border-opacity-20",
     isDark ? "border-white/10" : "border-black/10"
   );
-
-  const handleIdeaCrystallized = (enhancedIdea: string) => {
-    // Here you can handle the enhanced idea, e.g., create a new task or mindset post
-    toast({
-      title: "Nova Ideia Cristalizada",
-      description: "Sua ideia foi aprimorada e está pronta para implementação.",
-    });
-  };
 
   return (
     <div className={cn(
@@ -58,16 +85,15 @@ export const AkaflowDashboard = () => {
               : "from-purple-600 via-blue-600 to-purple-600"
           )}>
             AKAFLOW
+            {isPremium && (
+              <Badge className="ml-2 bg-gradient-to-r from-yellow-400 to-yellow-600 animate-pulse">
+                AKALIBRE Premium
+              </Badge>
+            )}
           </h1>
           <p className="text-lg opacity-80">
             Eleve sua produtividade ao próximo nível
           </p>
-          <div className="flex justify-center">
-            <CrystallizeDialog 
-              onIdeaCrystallized={handleIdeaCrystallized}
-              className="mt-4"
-            />
-          </div>
         </div>
 
         <PremiumFeatures
@@ -76,6 +102,37 @@ export const AkaflowDashboard = () => {
           userXp={userXp}
           onUpgradeToPremium={() => setIsPremium(true)}
         />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className={cn(
+            "p-6 rounded-lg transition-all duration-300",
+            glassStyle
+          )}>
+            <CrystallizeDialog 
+              onIdeaCrystallized={handleIdeaCrystallized}
+              className="w-full"
+            />
+          </div>
+
+          <div className={cn(
+            "p-6 rounded-lg transition-all duration-300 relative",
+            glassStyle,
+            !isPremium && "opacity-75"
+          )}>
+            {!isPremium && (
+              <div className="absolute inset-0 bg-black/5 backdrop-blur-[1px] rounded-lg flex items-center justify-center">
+                <div className="text-center space-y-2">
+                  <Crown className="w-12 h-12 mx-auto text-yellow-500 animate-pulse" />
+                  <p className="text-sm font-medium">Recurso Premium</p>
+                </div>
+              </div>
+            )}
+            <VoiceInput 
+              onTranscriptionComplete={() => {}}
+              onContentAnalyzed={() => {}}
+            />
+          </div>
+        </div>
 
         <Card className={cn(glassStyle, "p-6")}>
           <Tabs defaultValue="tasks" className="space-y-6">
@@ -88,6 +145,7 @@ export const AkaflowDashboard = () => {
                 <TabsTrigger
                   key={id}
                   value={id}
+                  onClick={handleInteraction}
                   className={cn(
                     "data-[state=active]:bg-primary/20",
                     "hover:bg-primary/10 transition-all",

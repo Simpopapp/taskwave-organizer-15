@@ -1,4 +1,4 @@
-import { Crown, Lock, Star } from "lucide-react";
+import { Crown, Lock, Star, Mic } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { cn } from "@/lib/utils";
@@ -77,13 +77,13 @@ export const PremiumFeatures = ({
             Premium Ativo
           </span>
         ) : (
-          "Upgrade para Premium"
+          "Torne-se AKALIBRE Premium"
         )}
       </Button>
 
       <div className="flex flex-wrap gap-2 justify-center">
         <Badge variant="secondary">Nível {userLevel}</Badge>
-        <Badge variant="outline">{userXp}/1000 XP</Badge>
+        <Badge variant="outline">{userXp}/{XP_FOR_LEVEL_UP} XP</Badge>
         <Badge className={cn(
           "transition-all duration-300",
           isPremium ? "bg-gradient-to-r from-yellow-500 to-yellow-700" : "bg-gradient-to-r from-purple-500 to-blue-500"
