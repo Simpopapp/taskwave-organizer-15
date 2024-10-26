@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Crown, Star, Calendar, Users, CheckSquare, Trophy } from "lucide-react";
+import { Crown, Star, Calendar, Users, CheckSquare, Trophy, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TaskList } from "./TaskList";
 import { WeeklyProgress } from "./WeeklyProgress";
@@ -11,6 +11,8 @@ import { Button } from "./ui/button";
 import { TaskType } from "@/types/task";
 import { useTheme } from "next-themes";
 import { PremiumFeatures } from "./PremiumFeatures";
+import { CrystallizeDialog } from "./CrystallizeDialog";
+import { useToast } from "@/hooks/use-toast";
 
 export const AkaflowDashboard = () => {
   const [activeTab, setActiveTab] = useState("tasks");
@@ -18,6 +20,7 @@ export const AkaflowDashboard = () => {
   const [isPremium, setIsPremium] = useState(false);
   const [userLevel, setUserLevel] = useState(1);
   const [userXp, setUserXp] = useState(0);
+  const { toast } = useToast();
 
   const isDark = theme === "dark";
 
@@ -29,6 +32,14 @@ export const AkaflowDashboard = () => {
     "border border-opacity-20",
     isDark ? "border-white/10" : "border-black/10"
   );
+
+  const handleIdeaCrystallized = (enhancedIdea: string) => {
+    // Here you can handle the enhanced idea, e.g., create a new task or mindset post
+    toast({
+      title: "Nova Ideia Cristalizada",
+      description: "Sua ideia foi aprimorada e está pronta para implementação.",
+    });
+  };
 
   return (
     <div className={cn(
@@ -51,6 +62,12 @@ export const AkaflowDashboard = () => {
           <p className="text-lg opacity-80">
             Eleve sua produtividade ao próximo nível
           </p>
+          <div className="flex justify-center">
+            <CrystallizeDialog 
+              onIdeaCrystallized={handleIdeaCrystallized}
+              className="mt-4"
+            />
+          </div>
         </div>
 
         <PremiumFeatures
