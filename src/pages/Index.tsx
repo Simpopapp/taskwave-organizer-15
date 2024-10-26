@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { TaskList } from "@/components/TaskList";
+import { WeeklyProgress } from "@/components/WeeklyProgress";
 import { FileUploader } from "@/components/FileUploader";
 import { DailyView } from "@/components/DailyView";
 import { TaskType } from "@/types/task";
