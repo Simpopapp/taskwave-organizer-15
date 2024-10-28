@@ -108,8 +108,8 @@ export default function Index() {
   const currentWeekTasks = tasks.filter(task => task.week === currentWeek);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 to-purple-50/50 p-8">
-      <div className="max-w-5xl mx-auto space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 to-purple-50/50 px-4 py-6 sm:p-8">
+      <div className="max-w-5xl mx-auto space-y-4 sm:space-y-8">
         <MainNavigation />
         
         <PremiumFeatures
@@ -119,15 +119,15 @@ export default function Index() {
           onUpgradeToPremium={() => setIsPremium(true)}
         />
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <Card className="p-6 border-blue-100 bg-white/80 backdrop-blur">
-            <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Card className="p-4 sm:p-6 border-blue-100 bg-white/80 backdrop-blur">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
               Assistente de Automação de Tarefas
             </h1>
-            <p className="text-gray-600 mb-6">
+            <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
               Faça upload do seu arquivo de planejamento para gerar e gerenciar tarefas semanais automaticamente.
             </p>
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               <DailyView tasks={currentWeekTasks} week={currentWeek} />
               <WeeklyProgress 
                 tasks={currentWeekTasks}
@@ -140,20 +140,20 @@ export default function Index() {
             </div>
           </Card>
 
-          <div className="space-y-6">
-            <Card className="p-6 border-blue-100 bg-white/80 backdrop-blur">
+          <div className="space-y-4 sm:space-y-6">
+            <Card className="p-4 sm:p-6 border-blue-100 bg-white/80 backdrop-blur">
               <FileUploader onFileUpload={handleFileUpload} />
             </Card>
 
             <div className={cn(
-              "p-6 rounded-lg transition-all duration-300 relative",
+              "p-4 sm:p-6 rounded-lg transition-all duration-300 relative",
               !isPremium && "opacity-75"
             )}>
               {!isPremium && (
                 <div className="absolute inset-0 bg-black/5 backdrop-blur-[1px] rounded-lg flex items-center justify-center">
                   <div className="text-center space-y-2">
-                    <Crown className="w-12 h-12 mx-auto text-yellow-500 animate-pulse" />
-                    <p className="text-sm font-medium">Recurso Premium</p>
+                    <Crown className="w-8 h-8 sm:w-12 sm:h-12 mx-auto text-yellow-500 animate-pulse" />
+                    <p className="text-xs sm:text-sm font-medium">Recurso Premium</p>
                   </div>
                 </div>
               )}
