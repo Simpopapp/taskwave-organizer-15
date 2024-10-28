@@ -1,33 +1,39 @@
-import { Button } from "@/components/ui/button";
+import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { useState } from "react";
 import { TaskList } from "@/components/TaskList";
 import { WeeklyProgress } from "@/components/WeeklyProgress";
 import { FileUploader } from "@/components/FileUploader";
 import { DailyView } from "@/components/DailyView";
+import { VoiceInput } from "@/components/VoiceInput";
+import { Crown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { TaskType } from "@/types/task";
 import { MainNavigation } from "@/components/navigation/MainNavigation";
 import { PremiumFeatures } from "@/components/PremiumFeatures";
-import { CrystallizeDialog } from "@/components/CrystallizeDialog";
-import { VoiceInput } from "@/components/VoiceInput";
-import { cn } from "@/lib/utils";
-import { Crown } from "lucide-react";
 
-const Index = () => {
+export default function Index() {
+  const [xp, setXp] = useState(0);
+  const [level, setLevel] = useState(1);
   const [tasks, setTasks] = useState<TaskType[]>([]);
-  const { toast } = useToast();
   const [currentWeek, setCurrentWeek] = useState(1);
-  const [userLevel, setUserLevel] = useState(1);
-  const [userXp, setUserXp] = useState(0);
   const [isPremium, setIsPremium] = useState(false);
-  const [interactionCount, setInteractionCount] = useState(0);
+  const { toast } = useToast();
+
+  const handleFileUpload = (content: string) => {
+    const parsedTasks = parseTasksFromContent(content);
+    setTasks(parsedTasks);
+    
+    toast({
+      title: "Tasks Loaded",
+      description: `Successfully loaded ${parsedTasks.length} tasks from file.`
+    });
+  };
 
   const handleInteraction = () => {
     setInteractionCount(prev => {
       const newCount = prev + 1;
       if (newCount % 3 === 0) {
-        // Add XP every 3 interactions
         setUserXp(prevXp => {
           const newXp = prevXp + 400;
           const newLevel = Math.floor(newXp / 1000) + 1;
@@ -45,84 +51,6 @@ const Index = () => {
     });
   };
 
-  const parseTasksFromContent = (content: string): TaskType[] => {
-    const lines = content.split('\n').filter(line => line.trim().length > 0);
-    const parsedTasks: TaskType[] = [];
-    let currentWeek = 1;
-
-    lines.forEach(line => {
-      // Check if line starts with "Semana" or "Week"
-      if (line.toLowerCase().match(/^(semana|week)\s*\d+/i)) {
-        currentWeek = parseInt(line.match(/\d+/)?.[0] || "1");
-        return;
-      }
-
-      // Check if line is a task (starts with "-", "*", or contains ":")
-      if (line.trim().match(/^[-*]|:/)) {
-        const taskTitle = line.replace(/^[-*]\s*/, '').trim();
-        if (taskTitle) {
-          parsedTasks.push({
-            id: Math.random().toString(36).substr(2, 9),
-            title: taskTitle,
-            completed: false,
-            week: currentWeek
-          });
-        }
-      }
-    });
-
-    return parsedTasks;
-  };
-
-  const handleFileUpload = (content: string) => {
-    const parsedTasks = parseTasksFromContent(content);
-    setTasks(parsedTasks);
-    
-    toast({
-      title: "Tasks Loaded",
-      description: `Successfully loaded ${parsedTasks.length} tasks from file.`
-    });
-  };
-
-  const handleTaskComplete = (taskId: string) => {
-    setTasks(prev => prev.map(task => {
-      if (task.id === taskId) {
-        const completed = !task.completed;
-        if (completed) {
-          addExperiencePoints(25, "Tarefa concluída");
-        }
-        return { ...task, completed };
-      }
-      return task;
-    }));
-  };
-
-  const addExperiencePoints = (points: number, action: string) => {
-    setUserXp(prev => {
-      const newXp = prev + points;
-      const newLevel = Math.floor(newXp / 1000) + 1;
-      
-      if (newLevel > userLevel) {
-        toast({
-          title: "Nível Aumentado! 🎉",
-          description: `Você alcançou o nível ${newLevel}!`,
-          duration: 5000,
-        });
-        setUserLevel(newLevel);
-      }
-      
-      return newXp;
-    });
-  };
-
-  const handleWeekChange = (week: number) => {
-    setCurrentWeek(week);
-  };
-
-  const availableWeeks = Array.from(
-    new Set(tasks.map(task => task.week))
-  ).sort((a, b) => a - b);
-
   const currentWeekTasks = tasks.filter(task => task.week === currentWeek);
 
   return (
@@ -132,12 +60,12 @@ const Index = () => {
         
         <PremiumFeatures
           isPremium={isPremium}
-          userLevel={userLevel}
-          userXp={userXp}
+          userLevel={level}
+          userXp={xp}
           onUpgradeToPremium={() => setIsPremium(true)}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid gap-4 md:grid-cols-2">
           <Card className="p-6 border-blue-100 bg-white/80 backdrop-blur">
             <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
               Assistente de Automação de Tarefas
@@ -145,7 +73,7 @@ const Index = () => {
             <p className="text-gray-600 mb-6">
               Faça upload do seu arquivo de planejamento para gerar e gerenciar tarefas semanais automaticamente.
             </p>
-            <div className="space-y-4">
+            <div className="space-y-6">
               <DailyView tasks={currentWeekTasks} week={currentWeek} />
               <WeeklyProgress 
                 tasks={currentWeekTasks}
@@ -185,6 +113,4 @@ const Index = () => {
       </div>
     </div>
   );
-};
-
-export default Index;
+}
