@@ -90,7 +90,7 @@ export const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="flex flex-col gap-4">
         <div
           className={cn(
             "border-2 border-dashed rounded-lg p-8 text-center transition-all",
