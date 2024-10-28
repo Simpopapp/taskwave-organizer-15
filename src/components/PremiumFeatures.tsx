@@ -25,16 +25,10 @@ export const PremiumFeatures = ({
         <SideNavigation />
         
         <div className="flex-1">
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex gap-2">
-              <Badge variant="secondary">Nível {userLevel}</Badge>
-              <Badge variant="outline">{userXp}/{XP_FOR_LEVEL_UP} XP</Badge>
-              <Badge className={cn(
-                "transition-all duration-300",
-                isPremium ? "bg-gradient-to-r from-yellow-500 to-yellow-700" : "bg-gradient-to-r from-purple-500 to-blue-500"
-              )}>
-                {isPremium ? "Premium" : "Iniciante"}
-              </Badge>
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Crown className="w-6 h-6 text-yellow-500" />
+              <h3 className="text-lg font-semibold">AKALIBRE</h3>
             </div>
 
             {isPremium && (
@@ -48,7 +42,7 @@ export const PremiumFeatures = ({
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 mt-4">
             {[
               { title: "Temas Exclusivos", locked: !isPremium },
               { title: "Entrada por Voz", locked: !isPremium },
@@ -77,18 +71,39 @@ export const PremiumFeatures = ({
         </div>
       </div>
 
-      {!isPremium && (
+      <div className="flex justify-between items-center mt-4">
+        <div className="flex gap-2">
+          <Badge variant="secondary">Nível {userLevel}</Badge>
+          <Badge variant="outline">{userXp}/{XP_FOR_LEVEL_UP} XP</Badge>
+          <Badge className={cn(
+            "transition-all duration-300",
+            isPremium ? "bg-gradient-to-r from-yellow-500 to-yellow-700" : "bg-gradient-to-r from-purple-500 to-blue-500"
+          )}>
+            {isPremium ? "Premium" : "Iniciante"}
+          </Badge>
+        </div>
+
         <Button
           onClick={onUpgradeToPremium}
+          disabled={isPremium}
           className={cn(
             "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700",
             "transition-all duration-300 hover:scale-105"
           )}
         >
-          <Crown className="w-4 h-4 mr-2" />
-          Torne-se AKALIBRE Premium
+          {isPremium ? (
+            <span className="flex items-center gap-2">
+              <Crown className="w-4 h-4" />
+              Premium Ativo
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              <Crown className="w-4 h-4" />
+              Torne-se AKALIBRE Premium
+            </span>
+          )}
         </Button>
-      )}
+      </div>
     </div>
   );
 };
