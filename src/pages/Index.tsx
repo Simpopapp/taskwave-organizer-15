@@ -145,53 +145,41 @@ const Index = () => {
             <p className="text-gray-600 mb-6">
               Faça upload do seu arquivo de planejamento para gerar e gerenciar tarefas semanais automaticamente.
             </p>
-            <FileUploader onFileUpload={handleFileUpload} />
-          </Card>
-
-          <div className={cn(
-            "p-6 rounded-lg transition-all duration-300 relative",
-            !isPremium && "opacity-75"
-          )}>
-            {!isPremium && (
-              <div className="absolute inset-0 bg-black/5 backdrop-blur-[1px] rounded-lg flex items-center justify-center">
-                <div className="text-center space-y-2">
-                  <Crown className="w-12 h-12 mx-auto text-yellow-500 animate-pulse" />
-                  <p className="text-sm font-medium">Recurso Premium</p>
-                </div>
-              </div>
-            )}
-            <VoiceInput 
-              onTranscriptionComplete={() => handleInteraction()}
-              onContentAnalyzed={() => handleInteraction()}
-            />
-          </div>
-        </div>
-
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <DailyView tasks={currentWeekTasks} week={currentWeek} />
-          </div>
-
-          <div className="space-y-8">
-            <Card className="p-6 border-blue-100 bg-white/80 backdrop-blur">
-              <h2 className="text-xl font-semibold mb-4 text-blue-900">
-                Progresso Semanal
-              </h2>
+            <div className="space-y-4">
+              <DailyView tasks={currentWeekTasks} week={currentWeek} />
               <WeeklyProgress 
                 tasks={currentWeekTasks}
                 week={currentWeek}
               />
-            </Card>
-
-            <Card className="p-6 border-blue-100 bg-white/80 backdrop-blur">
-              <h2 className="text-xl font-semibold mb-4 text-blue-900">
-                Tarefas da Semana
-              </h2>
               <TaskList 
                 tasks={currentWeekTasks}
                 onTaskComplete={handleTaskComplete}
               />
+            </div>
+          </Card>
+
+          <div className="space-y-6">
+            <Card className="p-6 border-blue-100 bg-white/80 backdrop-blur">
+              <FileUploader onFileUpload={handleFileUpload} />
             </Card>
+
+            <div className={cn(
+              "p-6 rounded-lg transition-all duration-300 relative",
+              !isPremium && "opacity-75"
+            )}>
+              {!isPremium && (
+                <div className="absolute inset-0 bg-black/5 backdrop-blur-[1px] rounded-lg flex items-center justify-center">
+                  <div className="text-center space-y-2">
+                    <Crown className="w-12 h-12 mx-auto text-yellow-500 animate-pulse" />
+                    <p className="text-sm font-medium">Recurso Premium</p>
+                  </div>
+                </div>
+              )}
+              <VoiceInput 
+                onTranscriptionComplete={() => handleInteraction()}
+                onContentAnalyzed={() => handleInteraction()}
+              />
+            </div>
           </div>
         </div>
       </div>
