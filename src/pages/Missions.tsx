@@ -2,15 +2,23 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Star, Trophy, Target } from "lucide-react";
-import { TaskType } from "@/types/task";
+import { TaskType, createDefaultTask } from "@/types/task";
 import { useState } from "react";
 
 export default function Missions() {
   const [xp, setXp] = useState(0);
   const [level, setLevel] = useState(1);
   const [tasks] = useState<TaskType[]>([
-    { id: "1", title: "Completar relatório diário", completed: false, week: 1 },
-    { id: "2", title: "Revisar documentação", completed: false, week: 1 },
+    createDefaultTask({
+      title: "Completar relatório diário",
+      assigneeId: "1",
+      createdBy: "1"
+    }),
+    createDefaultTask({
+      title: "Revisar documentação",
+      assigneeId: "1",
+      createdBy: "1"
+    })
   ]);
 
   return (

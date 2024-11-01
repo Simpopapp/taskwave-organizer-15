@@ -65,6 +65,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const canEditUser = (userId: string) => {
+    return user?.role === 'leader' || user?.id === userId;
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -72,7 +76,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       error,
       login,
       register,
-      logout
+      logout,
+      canEditUser
     }}>
       {children}
     </AuthContext.Provider>
