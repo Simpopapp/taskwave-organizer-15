@@ -1,59 +1,77 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { User, Group } from '@/types/user';
-
-interface AuthContextType {
-  currentUser: User | null;
-  currentGroup: Group | null;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-  canEditUser: (userId: string) => boolean;
-}
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { AuthContextType, AuthUser } from '@/types/auth';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [currentGroup, setCurrentGroup] = useState<Group | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const login = async (email: string, password: string) => {
-    // Mock login - replace with actual authentication
-    const mockUser: User = {
-      id: '1',
-      name: 'John Doe',
-      email: email,
-      role: 'leader',
-      groupId: 'group1'
-    };
-
-    const mockGroup: Group = {
-      id: 'group1',
-      name: 'Team Alpha',
-      leaderId: '1',
-      members: ['1', '2', '3']
-    };
-
-    setCurrentUser(mockUser);
-    setCurrentGroup(mockGroup);
-  };
-
-  const logout = useCallback(() => {
-    setCurrentUser(null);
-    setCurrentGroup(null);
+  useEffect(() => {
+    // TODO: Implement Supabase auth state listener
+    setLoading(false);
   }, []);
 
-  const canEditUser = useCallback((userId: string): boolean => {
-    if (!currentUser) return false;
-    if (currentUser.role === 'leader') return true;
-    return currentUser.id === userId;
-  }, [currentUser]);
+  const login = async (email: string, password: string) => {
+    try {
+      setLoading(true);
+      // TODO: Implement Supabase auth.signIn
+      const mockUser: AuthUser = {
+        id: '1',
+        email,
+        role: 'member',
+        name: 'John Doe'
+      };
+      setUser(mockUser);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao fazer login');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const register = async (email: string, password: string, name: string) => {
+    try {
+      setLoading(true);
+      // TODO: Implement Supabase auth.signUp
+      const mockUser: AuthUser = {
+        id: '1',
+        email,
+        role: 'guest',
+        name
+      };
+      setUser(mockUser);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao registrar');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      setLoading(true);
+      // TODO: Implement Supabase auth.signOut
+      setUser(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao fazer logout');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <AuthContext.Provider value={{
-      currentUser,
-      currentGroup,
+      user,
+      loading,
+      error,
       login,
-      logout,
-      canEditUser
+      register,
+      logout
     }}>
       {children}
     </AuthContext.Provider>
