@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -27,6 +28,30 @@ export default function Register() {
       toast({
         title: "Erro ao registrar",
         description: error instanceof Error ? error.message : "Tente novamente mais tarde",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleGuestAccess = async () => {
+    const guestName = prompt("Digite seu nome para continuar como convidado:");
+    if (!guestName) return;
+    
+    try {
+      await register(
+        `guest_${Date.now()}@temp.com`,
+        Math.random().toString(36).slice(-8),
+        guestName
+      );
+      toast({
+        title: "Bem-vindo!",
+        description: "Você entrou como convidado.",
+      });
+      navigate("/");
+    } catch (error) {
+      toast({
+        title: "Erro ao entrar como convidado",
+        description: "Tente novamente mais tarde",
         variant: "destructive",
       });
     }
@@ -84,6 +109,25 @@ export default function Register() {
             Registrar
           </Button>
         </form>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <Separator className="w-full" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              ou
+            </span>
+          </div>
+        </div>
+
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={handleGuestAccess}
+        >
+          Entrar como Convidado
+        </Button>
 
         <p className="text-center text-sm">
           Já tem uma conta?{" "}

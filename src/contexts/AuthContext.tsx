@@ -36,10 +36,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setLoading(true);
       // TODO: Implement Supabase auth.signUp
+      const isGuest = email.startsWith('guest_');
       const mockUser: AuthUser = {
-        id: '1',
+        id: Date.now().toString(),
         email,
-        role: 'guest',
+        role: isGuest ? 'guest' : 'member',
         name
       };
       setUser(mockUser);
