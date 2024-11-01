@@ -1,5 +1,8 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AuthContextType, AuthUser } from '@/types/auth';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { Session } from '@supabase/supabase-js';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -7,23 +10,59 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
-    // TODO: Implement Supabase auth state listener
-    setLoading(false);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        handleSession(session);
+      }
+      setLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        handleSession(session);
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  const handleSession = async (session: Session) => {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile) {
+      setUser({
+        id: session.user.id,
+        email: session.user.email!,
+        role: profile.role,
+        name: session.user.user_metadata.name || 'Usuário'
+      });
+    }
+  };
 
   const login = async (email: string, password: string) => {
     try {
       setLoading(true);
-      // TODO: Implement Supabase auth.signIn
-      const mockUser: AuthUser = {
-        id: '1',
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
-        role: 'member',
-        name: 'John Doe'
-      };
-      setUser(mockUser);
+        password
+      });
+
+      if (signInError) throw signInError;
+
+      toast({
+        title: "Login realizado com sucesso!",
+        description: "Bem-vindo de volta!"
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao fazer login');
       throw err;
@@ -35,15 +74,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const register = async (email: string, password: string, name: string) => {
     try {
       setLoading(true);
-      // TODO: Implement Supabase auth.signUp
-      const isGuest = email.startsWith('guest_');
-      const mockUser: AuthUser = {
-        id: Date.now().toString(),
+      const { error: signUpError } = await supabase.auth.signUp({
         email,
-        role: isGuest ? 'guest' : 'member',
-        name
-      };
-      setUser(mockUser);
+        password,
+        options: {
+          data: {
+            name
+          }
+        }
+      });
+
+      if (signUpError) throw signUpError;
+
+      toast({
+        title: "Registro realizado com sucesso!",
+        description: "Sua conta foi criada."
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao registrar');
       throw err;
@@ -55,7 +101,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = async () => {
     try {
       setLoading(true);
-      // TODO: Implement Supabase auth.signOut
+      const { error: signOutError } = await supabase.auth.signOut();
+      if (signOutError) throw signOutError;
       setUser(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao fazer logout');
