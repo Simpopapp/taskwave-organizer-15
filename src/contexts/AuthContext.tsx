@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser({
         id: session.user.id,
         email: session.user.email!,
-        role: profile.role,
+        role: profile.role as 'guest' | 'member' | 'leader',
         name: session.user.user_metadata.name || 'Usuário'
       });
     }

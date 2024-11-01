@@ -20,10 +20,17 @@ export const useContentManager = () => {
         const newTask: TaskType = {
           id: Date.now().toString(),
           title: content.content,
+          description: '',
           completed: false,
           week: getCurrentWeek(),
           xpReward: content.metadata?.xpReward || 50,
-          priority: content.metadata?.priority || 1
+          priority: content.metadata?.priority as 'low' | 'medium' | 'high' || 'medium',
+          dueDate: new Date(),
+          status: 'pending',
+          assigneeId: '',
+          createdBy: '',
+          createdAt: new Date(),
+          updatedAt: new Date()
         };
         setTasks(prev => [...prev, newTask]);
         break;
