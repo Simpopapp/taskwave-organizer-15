@@ -17,6 +17,10 @@ export const useContentManager = () => {
   const addContent = (content: AnalyzedContent) => {
     switch (content.category) {
       case 'task':
+        const priority = typeof content.metadata?.priority === 'number' 
+          ? (content.metadata.priority <= 1 ? 'low' : content.metadata.priority >= 3 ? 'high' : 'medium')
+          : 'medium';
+
         const newTask: TaskType = {
           id: Date.now().toString(),
           title: content.content,
@@ -24,7 +28,7 @@ export const useContentManager = () => {
           completed: false,
           week: getCurrentWeek(),
           xpReward: content.metadata?.xpReward || 50,
-          priority: content.metadata?.priority as 'low' | 'medium' | 'high' || 'medium',
+          priority,
           dueDate: new Date(),
           status: 'pending',
           assigneeId: '',

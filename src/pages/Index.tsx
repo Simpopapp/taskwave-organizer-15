@@ -38,8 +38,16 @@ export default function Index() {
           parsedTasks.push({
             id: Math.random().toString(36).substr(2, 9),
             title: taskTitle,
+            description: '',
             completed: false,
-            week: weekNumber
+            week: weekNumber,
+            priority: 'medium',
+            dueDate: new Date(),
+            status: 'pending',
+            assigneeId: '',
+            createdBy: '',
+            createdAt: new Date(),
+            updatedAt: new Date()
           });
         }
       }
