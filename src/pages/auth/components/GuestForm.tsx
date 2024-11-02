@@ -29,17 +29,20 @@ export function GuestForm({ onBack }: GuestFormProps) {
     }
 
     setIsLoading(true);
-    const guestEmail = `guest_${Date.now()}@temporary.com`;
-    const guestPassword = `Guest${Date.now()}!`;
-
     try {
+      const timestamp = Date.now();
+      const randomString = Math.random().toString(36).substring(7);
+      const guestEmail = `guest_${timestamp}_${randomString}@akaflow.app`;
+      const guestPassword = `Guest${timestamp}${randomString}!`;
+
       await register(guestEmail, guestPassword, guestName, true);
       navigate('/');
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Guest registration error:', error);
       toast({
         variant: "destructive",
         title: "Erro ao criar conta de convidado",
-        description: "Por favor, tente novamente mais tarde."
+        description: error?.message || "Por favor, tente novamente mais tarde."
       });
     } finally {
       setIsLoading(false);
@@ -83,6 +86,7 @@ export function GuestForm({ onBack }: GuestFormProps) {
         variant="ghost"
         className="w-full"
         onClick={onBack}
+        disabled={isLoading}
       >
         Voltar
       </Button>

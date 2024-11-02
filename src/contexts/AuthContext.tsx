@@ -109,6 +109,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         });
       }
     } catch (err) {
+      console.error('Registration error:', err);
       setError(err instanceof Error ? err.message : 'Erro ao registrar');
       throw err;
     } finally {
