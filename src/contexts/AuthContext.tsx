@@ -40,10 +40,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       .single();
 
     if (profile) {
+      const userRole = profile.role as 'guest' | 'member' | 'leader';
       setUser({
         id: session.user.id,
         email: session.user.email!,
-        role: profile.role,
+        role: userRole,
         name: session.user.user_metadata.name || 'Usuário'
       });
     }
@@ -88,23 +89,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (signUpError) throw signUpError;
 
       if (signUpData.user) {
+        const userRole = isGuest ? 'guest' as const : 'member' as const;
+        
         await supabase
           .from('profiles')
-          .update({ role: isGuest ? 'guest' : 'member' })
+          .update({ role: userRole })
           .eq('id', signUpData.user.id);
 
         setUser({
           id: signUpData.user.id,
           email: signUpData.user.email!,
-          role: isGuest ? 'guest' : 'member',
+          role: userRole,
           name: name
         });
-      }
 
-      toast({
-        title: "Registro realizado com sucesso!",
-        description: isGuest ? "Bem-vindo! Você está conectado como convidado." : "Sua conta foi criada."
-      });
+        toast({
+          title: "Registro realizado com sucesso!",
+          description: isGuest ? "Bem-vindo! Você está conectado como convidado." : "Sua conta foi criada."
+        });
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao registrar');
       throw err;
