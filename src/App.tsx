@@ -40,6 +40,7 @@ const App = () => (
             <Route path="/missions" element={<PrivateRoute><Missions /></PrivateRoute>} />
             <Route path="/appointments" element={<PrivateRoute><Appointments /></PrivateRoute>} />
             <Route path="/team" element={<PrivateRoute><Team /></PrivateRoute>} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

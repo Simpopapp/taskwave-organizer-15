@@ -34,10 +34,6 @@ export function GuestForm({ onBack }: GuestFormProps) {
 
     try {
       await register(guestEmail, guestPassword, guestName, true);
-      toast({
-        title: "Bem-vindo!",
-        description: "Sua conta de convidado foi criada com sucesso."
-      });
       navigate('/');
     } catch (error) {
       toast({

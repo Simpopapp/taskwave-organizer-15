@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser({
         id: session.user.id,
         email: session.user.email!,
-        role: profile.role as 'guest' | 'member' | 'leader',
+        role: profile.role,
         name: session.user.user_metadata.name || 'Usuário'
       });
     }
@@ -88,13 +88,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (signUpError) throw signUpError;
 
       if (signUpData.user) {
-        // Atualiza o perfil diretamente após o registro
-        const { error: profileError } = await supabase
+        await supabase
           .from('profiles')
           .update({ role: isGuest ? 'guest' : 'member' })
           .eq('id', signUpData.user.id);
 
-        if (profileError) throw profileError;
+        setUser({
+          id: signUpData.user.id,
+          email: signUpData.user.email!,
+          role: isGuest ? 'guest' : 'member',
+          name: name
+        });
       }
 
       toast({
