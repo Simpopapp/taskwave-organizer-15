@@ -33,19 +33,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const handleSession = async (session: Session) => {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', session.user.id)
-      .single();
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
 
-    if (profile) {
-      const userRole = profile.role as 'guest' | 'member' | 'leader';
-      setUser({
-        id: session.user.id,
-        email: session.user.email!,
-        role: userRole,
-        name: session.user.user_metadata.name || 'Usuário'
+      if (profile) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email!,
+          role: profile.role as 'guest' | 'member' | 'leader',
+          name: session.user.user_metadata?.name || 'Usuário'
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching profile:', err);
+      toast({
+        variant: "destructive",
+        title: "Erro ao carregar perfil",
+        description: "Por favor, tente novamente mais tarde."
       });
     }
   };
@@ -65,6 +73,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: "Bem-vindo de volta!"
       });
     } catch (err) {
+      console.error('Login error:', err);
       setError(err instanceof Error ? err.message : 'Erro ao fazer login');
       throw err;
     } finally {
@@ -91,16 +100,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (signUpData.user) {
         const userRole = isGuest ? 'guest' as const : 'member' as const;
         
-        await supabase
+        const { error: profileError } = await supabase
           .from('profiles')
           .update({ role: userRole })
           .eq('id', signUpData.user.id);
+
+        if (profileError) throw profileError;
 
         setUser({
           id: signUpData.user.id,
           email: signUpData.user.email!,
           role: userRole,
-          name: name
+          name
         });
 
         toast({

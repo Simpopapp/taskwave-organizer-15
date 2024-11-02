@@ -31,7 +31,7 @@ export function GuestForm({ onBack }: GuestFormProps) {
     setIsLoading(true);
     try {
       const timestamp = Date.now();
-      const randomString = Math.random().toString(36).substring(7);
+      const randomString = Math.random().toString(36).substring(2, 8);
       const guestEmail = `guest_${timestamp}_${randomString}@akaflow.app`;
       const guestPassword = `Guest${timestamp}${randomString}!`;
 
@@ -39,10 +39,11 @@ export function GuestForm({ onBack }: GuestFormProps) {
       navigate('/');
     } catch (error: any) {
       console.error('Guest registration error:', error);
+      const errorMessage = error?.message || error?.error_description || 'Erro desconhecido';
       toast({
         variant: "destructive",
         title: "Erro ao criar conta de convidado",
-        description: error?.message || "Por favor, tente novamente mais tarde."
+        description: `Por favor, tente novamente. ${errorMessage}`
       });
     } finally {
       setIsLoading(false);
