@@ -71,24 +71,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const register = async (email: string, password: string, name: string) => {
+  const register = async (email: string, password: string, name: string, isGuest = false) => {
     try {
       setLoading(true);
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
-            name
+            name,
+            role: isGuest ? 'guest' : 'member'
           }
         }
       });
 
       if (signUpError) throw signUpError;
 
+      if (signUpData.user) {
+        // Atualiza o perfil diretamente após o registro
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({ role: isGuest ? 'guest' : 'member' })
+          .eq('id', signUpData.user.id);
+
+        if (profileError) throw profileError;
+      }
+
       toast({
         title: "Registro realizado com sucesso!",
-        description: "Sua conta foi criada."
+        description: isGuest ? "Bem-vindo! Você está conectado como convidado." : "Sua conta foi criada."
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao registrar');
