@@ -32,17 +32,23 @@ export function GuestForm({ onBack }: GuestFormProps) {
     try {
       const timestamp = Date.now();
       const randomString = Math.random().toString(36).substring(2, 8);
-      const guestEmail = `guest_${timestamp}_${randomString}@temp.akaflow.app`;
+      const guestEmail = `guest_${timestamp}_${randomString}@guest.akaflow.app`;
       const guestPassword = `Guest${timestamp}${randomString}!`;
 
       await register(guestEmail, guestPassword, guestName, true);
       navigate('/');
     } catch (error: any) {
       console.error('Guest registration error:', error);
+      let errorMessage = 'Por favor, tente novamente mais tarde.';
+      
+      if (error?.message?.includes('email_address_not_authorized')) {
+        errorMessage = 'Erro na configuração do sistema. Por favor, contate o administrador.';
+      }
+      
       toast({
         variant: "destructive",
         title: "Erro ao criar conta de convidado",
-        description: "Por favor, tente novamente mais tarde."
+        description: errorMessage
       });
     } finally {
       setIsLoading(false);
