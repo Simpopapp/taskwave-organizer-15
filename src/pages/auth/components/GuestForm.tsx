@@ -11,7 +11,7 @@ interface GuestFormProps {
 }
 
 export function GuestForm({ onBack }: GuestFormProps) {
-  const [guestName, setGuestName] = useState('');
+  const [guestName, setGuestName] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { register } = useAuth();
@@ -19,7 +19,9 @@ export function GuestForm({ onBack }: GuestFormProps) {
 
   const handleGuestLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!guestName?.trim()) {
+    
+    const trimmedName = guestName?.trim() || '';
+    if (!trimmedName) {
       toast({
         variant: "destructive",
         title: "Nome obrigatório",
@@ -35,7 +37,7 @@ export function GuestForm({ onBack }: GuestFormProps) {
       const guestEmail = `guest_${timestamp}_${randomString}@guest.akaflow.app`;
       const guestPassword = `Guest${timestamp}${randomString}!`;
 
-      await register(guestEmail, guestPassword, guestName, true);
+      await register(guestEmail, guestPassword, trimmedName, true);
       navigate('/');
     } catch (error: any) {
       console.error('Guest registration error:', error);
@@ -65,7 +67,7 @@ export function GuestForm({ onBack }: GuestFormProps) {
           id="guestName"
           type="text"
           placeholder="Como devemos te chamar?"
-          value={guestName || ''}
+          value={guestName}
           onChange={(e) => setGuestName(e.target.value)}
           required
           className="w-full"
