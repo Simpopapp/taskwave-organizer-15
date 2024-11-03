@@ -1,19 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { LoginForm } from './components/LoginForm';
 import { GuestForm } from './components/GuestForm';
 
 export default function Login() {
   const [showGuestForm, setShowGuestForm] = useState(false);
-  const { toast } = useToast();
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
@@ -39,14 +33,12 @@ export default function Login() {
                   </span>
                 </div>
               </div>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
+              <button
                 onClick={() => setShowGuestForm(true)}
+                className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
               >
                 Continuar como Convidado
-              </Button>
+              </button>
             </>
           ) : (
             <GuestForm onBack={() => setShowGuestForm(false)} />

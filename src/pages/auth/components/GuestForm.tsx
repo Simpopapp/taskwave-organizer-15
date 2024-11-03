@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface GuestFormProps {
@@ -11,7 +11,7 @@ interface GuestFormProps {
 }
 
 export function GuestForm({ onBack }: GuestFormProps) {
-  const [guestName, setGuestName] = useState<string>('');
+  const [guestName, setGuestName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { register } = useAuth();
@@ -21,7 +21,7 @@ export function GuestForm({ onBack }: GuestFormProps) {
     e.preventDefault();
     setIsLoading(true);
 
-    const trimmedName = (guestName || '').trim();
+    const trimmedName = guestName.trim();
     if (!trimmedName) {
       toast({
         variant: "destructive",
@@ -55,7 +55,7 @@ export function GuestForm({ onBack }: GuestFormProps) {
   return (
     <form onSubmit={handleGuestLogin} className="space-y-4">
       <div className="space-y-2">
-        <label htmlFor="guestName" className="text-sm font-medium">
+        <label htmlFor="guestName" className="text-sm font-medium text-gray-700">
           Seu Nome
         </label>
         <Input
@@ -69,30 +69,33 @@ export function GuestForm({ onBack }: GuestFormProps) {
         />
       </div>
 
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={isLoading}
-      >
-        {isLoading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Criando conta...
-          </>
-        ) : (
-          'Continuar como Convidado'
-        )}
-      </Button>
+      <div className="space-y-2">
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Criando conta...
+            </>
+          ) : (
+            'Continuar como Convidado'
+          )}
+        </Button>
 
-      <Button
-        type="button"
-        variant="ghost"
-        className="w-full"
-        onClick={onBack}
-        disabled={isLoading}
-      >
-        Voltar
-      </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          className="w-full"
+          onClick={onBack}
+          disabled={isLoading}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Voltar
+        </Button>
+      </div>
     </form>
   );
 }
