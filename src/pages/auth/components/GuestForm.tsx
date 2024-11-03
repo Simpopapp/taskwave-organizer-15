@@ -19,18 +19,19 @@ export function GuestForm({ onBack }: GuestFormProps) {
 
   const handleGuestLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const trimmedName = guestName?.trim() || '';
+    setIsLoading(true);
+
+    const trimmedName = (guestName || '').trim();
     if (!trimmedName) {
       toast({
         variant: "destructive",
         title: "Nome obrigatório",
         description: "Por favor, insira seu nome para continuar como convidado."
       });
+      setIsLoading(false);
       return;
     }
 
-    setIsLoading(true);
     try {
       const timestamp = Date.now();
       const randomString = Math.random().toString(36).substring(2, 8);
@@ -41,16 +42,10 @@ export function GuestForm({ onBack }: GuestFormProps) {
       navigate('/');
     } catch (error: any) {
       console.error('Guest registration error:', error);
-      let errorMessage = 'Por favor, tente novamente mais tarde.';
-      
-      if (error?.message?.includes('email_address_not_authorized')) {
-        errorMessage = 'Erro na configuração do sistema. Por favor, contate o administrador.';
-      }
-      
       toast({
         variant: "destructive",
         title: "Erro ao criar conta de convidado",
-        description: errorMessage
+        description: "Por favor, tente novamente mais tarde."
       });
     } finally {
       setIsLoading(false);
