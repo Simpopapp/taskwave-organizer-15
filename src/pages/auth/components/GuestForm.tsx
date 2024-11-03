@@ -19,7 +19,7 @@ export function GuestForm({ onBack }: GuestFormProps) {
 
   const handleGuestLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!guestName.trim()) {
+    if (!guestName?.trim()) {
       toast({
         variant: "destructive",
         title: "Nome obrigatório",
@@ -65,7 +65,7 @@ export function GuestForm({ onBack }: GuestFormProps) {
           id="guestName"
           type="text"
           placeholder="Como devemos te chamar?"
-          value={guestName}
+          value={guestName || ''}
           onChange={(e) => setGuestName(e.target.value)}
           required
           className="w-full"
