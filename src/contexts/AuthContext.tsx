@@ -2,7 +2,7 @@ import React, { useState, useEffect, createContext, useContext } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { AuthUser, AuthContextType } from '@/types/auth';
+import { AuthUser, AuthContextType, UserRole } from '@/types/auth';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser({
           id: session.user.id,
           email: session.user.email!,
-          role: profile.role,
+          role: profile.role as UserRole,
           name: session.user.user_metadata?.name || 'Usuário'
         });
       }
@@ -93,7 +93,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         options: {
           data: {
             name,
-            role: isGuest ? 'guest' : 'member'
+            role: isGuest ? 'guest' as UserRole : 'member' as UserRole
           }
         }
       });
@@ -101,7 +101,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (signUpError) throw signUpError;
 
       if (signUpData.user) {
-        const userRole = isGuest ? 'guest' as const : 'member' as const;
+        const userRole = isGuest ? 'guest' as UserRole : 'member' as UserRole;
         
         const { error: profileError } = await supabase
           .from('profiles')
@@ -125,6 +125,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           description: isGuest ? "Bem-vindo! Você está conectado como convidado." : "Sua conta foi criada."
         });
       }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Erro no registro",
+        description: error.message
+      });
     } finally {
       setLoading(false);
     }
