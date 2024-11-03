@@ -1,7 +1,7 @@
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthUser } from '@/types/auth';
-import { Toast } from '@/hooks/use-toast';
+import { Toast } from '@/types/toast';
 
 export const handleSession = async (
   session: Session,
@@ -19,7 +19,7 @@ export const handleSession = async (
       setUser({
         id: session.user.id,
         email: session.user.email!,
-        role: profile.role as AuthUser['role'],
+        role: profile.role,
         name: session.user.user_metadata?.name || 'Usuário'
       });
     }
